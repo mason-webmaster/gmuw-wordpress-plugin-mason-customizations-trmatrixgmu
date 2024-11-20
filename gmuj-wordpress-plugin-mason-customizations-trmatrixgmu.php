@@ -26,7 +26,16 @@ __FILE__,
 'gmuw-wordpress-plugin-mason-customizations-trmatrixgmu'
 );
 
+// Register activation hook
+register_activation_hook(
+	__FILE__,
+	'gmuw_trmatrixgmu_plugin_activate'
+);
+
 // Load custom code modules. Comment lines here to turn on or off individual features
+
+// Plugin activation
+require('php/activate.php');
 
 // styles
 //require('php/styles.php');
