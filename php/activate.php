@@ -32,7 +32,6 @@ function gmuw_trmatrixgmu_create_custom_table_coursedata(){
 
   // Write SQL statement to create table
     $sql = "CREATE TABLE $table_name (
-     ID int(11) NOT NULL AUTO_INCREMENT,
 	 SHRTATC_SBGI_CODE nvarchar(255) DEFAULT NULL,
 	 SZBTATC_SBGI_DESC nvarchar(255) DEFAULT NULL,
 	 SZBTATC_SBGI_CITY nvarchar(255) DEFAULT NULL,
