@@ -105,7 +105,7 @@ function gmuw_trmatrixgmu_display_matrix_search_form(){
     //$content.='<p>SQL Coure: '. $mycoursesql .'</p>';
 
     //form
-    $content .= '<form name="transferCreditSearchForm" method="get" action="">';
+    $content .= '<form name="transferCreditSearchForm" method="get" action="#transfer_credit_search_form">';
 
     //hidden fields
     if ($mymode == 'groups') {
@@ -188,7 +188,7 @@ function gmuw_trmatrixgmu_display_matrix_search_form(){
     $content .= '              </select>&nbsp;';
     $content .= '          </td>';
     $content .= '      </tr>';
-    $content .= '  <tr><th colspan="2" style="text-align:center;""><a href="/">CLEAR FORM</a></th></tr>';
+    $content .= '  <tr><th colspan="2" style="text-align:center;""><a href="/#transfer_credit_search_form">CLEAR FORM</a></th></tr>';
     $content .= '  </table>';
     $content .= '</form>';
 
@@ -300,7 +300,7 @@ function gmuw_trmatrixgmu_display_matrix_search_results(){
                 $content.="<tfoot>";
                 $content.="    <tr>";
                 $content.="        <th colspan='6' style='text-align:center;'>";
-                $content.="<a href='?state=".$mystate."&school=".$myschool."&course=".$mycourse."&deptCode=".$mydepartmentcode."'>View All Transferrable Courses in This Department</a>";
+                $content.="<a href='?state=".$mystate."&school=".$myschool."&course=".$mycourse."&deptCode=".$mydepartmentcode."#transfer_credit_search_form'>View All Transferrable Courses in This Department</a>";
                 $content.="        </th>";
                 $content.="    </tr>";
                 $content.="</tfoot>";
