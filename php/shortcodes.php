@@ -69,11 +69,10 @@ function gmuw_trmatrixgmu_display_matrix_search_form(){
     //check parameters
     //if (!empty($mystate)) { $mystateexist = true; }
     //if (!empty($myschool)) { $myschoolexist = true; }
-    //if (!empty($mycourse)) { $mycourseExist = true; }
+    //if (!empty($mycourse)) { $mycourseexist = true; }
     $mystateexist = !empty($mystate);
     $myschoolexist = !empty($myschool);
-    $mycourseExist = !empty($mycourse);
-
+    $mycourseexist = !empty($mycourse);
 
     // set return value
     $content='';
@@ -95,7 +94,7 @@ function gmuw_trmatrixgmu_display_matrix_search_form(){
     //output
     //$content.='<p>State Exist: '. $mystateexist .'</p>';
     //$content.='<p>School Exist: '. $myschoolexist .'</p>';
-    //$content.='<p>Course Exist: '. $mycourseExist .'</p>';
+    //$content.='<p>Course Exist: '. $mycourseexist .'</p>';
     //$content.='<p>Mode: '. $mymode .'</p>';
     //$content.='<p>State: '. $mystate .'</p>';
     //$content.='<p>School: '. $myschool .'</p>';
@@ -180,7 +179,7 @@ function gmuw_trmatrixgmu_display_matrix_search_form(){
 
             foreach($courses as $course){
                 //output option tag, taking into account whether this is the currently selected option
-                $content .= ($mycourse == $course->SHRTATC_SUBJ_TRNS ? '<option selected ' : '<option ') . 'value="' . $course->SHRTATC_SUBJ_TRNS . '">' . $course->SHRTATC_TRNS_TITLE . '</option>';
+                $content .= ($mycourse == $course->SHRTATC_SUBJ_TRNS ? '<option selected ' : '<option ') . 'value="' . $course->SHRTATC_SUBJ_TRNS . '">' . $course->SHRTATC_SUBJ_TRNS . ' - ' . $course->SHRTATC_TRNS_TITLE . '</option>';
             }
         }
 
@@ -201,8 +200,157 @@ function gmuw_trmatrixgmu_display_matrix_search_form(){
 // shortcode for matrix search results
 function gmuw_trmatrixgmu_display_matrix_search_results(){
 
-    // Determine return value
-    $content='<p>[matrix search results]</p>';
+    //get globals
+    global $wpdb;
+
+    //set table name, using the database prefix
+    $mytable = $wpdb->prefix . "gmuw_trmatrixgmu_coursedata";
+
+    //set default parameters
+    $mymode='';
+    $mystate='';
+    $myschool='';
+    $mycourse='';
+    $mydeptcode='';
+
+    //get parameters
+    if (isset($_GET['mode'])) { $mymode = sanitize_text_field($_GET['mode']); }
+    if (isset($_GET['state'])) { $mystate = sanitize_text_field($_GET['state']); }
+    if (isset($_GET['school'])) { $myschool = sanitize_text_field($_GET['school']); }
+    if (isset($_GET['course'])) { $mycourse = sanitize_text_field($_GET['course']); }
+    if (isset($_GET['deptCode'])) { $mydeptcode = sanitize_text_field($_GET['deptCode']); }
+
+    //check parameters
+    //if (!empty($mystate)) { $mystateexist = true; }
+    //if (!empty($myschool)) { $myschoolexist = true; }
+    //if (!empty($mycourse)) { $mycourseexist = true; }
+    $mystateexist = !empty($mystate);
+    $myschoolexist = !empty($myschool);
+    $mycourseexist = !empty($mycourse);
+
+    // set return value
+    $content='';
+
+    //Set SQL strings
+    if (empty($mymode)) {
+        $myoutputsql        = "SELECT DISTINCT SHRTATC_SBGI_CODE, SZBTATC_SBGI_STAT_CODE, SHRTATC_SUBJ_TRNS, SHRTATC_TRNS_TITLE, SZBTATC_TRNS_CREDITS, SZBTATC_SUBJ_INST, SZBTATC_INST_TITLE, SHRTATC_INST_CREDITS_USED FROM " . $mytable . " WHERE SZBTATC_SBGI_STAT_CODE = '" . $mystate . "' AND SHRTATC_SBGI_CODE = '" . $myschool . "' AND SHRTATC_SUBJ_TRNS = '" . $mycourse . "' ORDER BY SHRTATC_SUBJ_TRNS, SHRTATC_TRNS_TITLE;";
+        $myoutputallsql     = "SELECT DISTINCT SHRTATC_SBGI_CODE, SZBTATC_SBGI_STAT_CODE, SHRTATC_SUBJ_TRNS, SHRTATC_TRNS_TITLE, SZBTATC_TRNS_CREDITS, SZBTATC_SUBJ_INST, SZBTATC_INST_TITLE, SHRTATC_INST_CREDITS_USED FROM " . $mytable . " WHERE SZBTATC_SBGI_STAT_CODE = '" . $mystate . "' AND SHRTATC_SBGI_CODE = '" . $myschool . "' ORDER BY SHRTATC_SUBJ_TRNS, SHRTATC_TRNS_TITLE;";
+        $myoutputalldeptsql = "SELECT DISTINCT SHRTATC_SBGI_CODE, SZBTATC_SBGI_STAT_CODE, SHRTATC_SUBJ_TRNS, SHRTATC_TRNS_TITLE, SZBTATC_TRNS_CREDITS, SZBTATC_SUBJ_INST, SZBTATC_INST_TITLE, SHRTATC_INST_CREDITS_USED FROM " . $mytable . " WHERE SZBTATC_SBGI_STAT_CODE = '" . $mystate . "' AND SHRTATC_SBGI_CODE = '" . $myschool . "' AND SHRTATC_SUBJ_TRNS LIKE '" . $mydeptcode . "%' ORDER BY SHRTATC_SUBJ_TRNS, SHRTATC_TRNS_TITLE;";
+    } elseif ($mymode == 'groups') {
+        $myoutputsql        = "SELECT DISTINCT SHRTATC_SBGI_CODE, SZBTATC_SBGI_STAT_CODE, SHRTATC_SUBJ_TRNS, SHRTATC_TRNS_TITLE, SZBTATC_TRNS_CREDITS, SZBTATC_SUBJ_INST, SZBTATC_INST_TITLE, SHRTATC_INST_CREDITS_USED, SHRTATC_GROUP FROM " . $mytable . " WHERE SHRTATC_GROUP<>'' AND SZBTATC_SBGI_STAT_CODE = '" . $mystate . "' AND SHRTATC_SBGI_CODE = '" . $myschool . "' AND SHRTATC_SUBJ_TRNS = '" . $mycourse . "' ORDER BY SHRTATC_SUBJ_TRNS, SHRTATC_TRNS_TITLE;";
+        $myoutputallsql     = "SELECT DISTINCT SHRTATC_SBGI_CODE, SZBTATC_SBGI_STAT_CODE, SHRTATC_SUBJ_TRNS, SHRTATC_TRNS_TITLE, SZBTATC_TRNS_CREDITS, SZBTATC_SUBJ_INST, SZBTATC_INST_TITLE, SHRTATC_INST_CREDITS_USED, SHRTATC_GROUP FROM " . $mytable . " WHERE SHRTATC_GROUP<>'' AND SZBTATC_SBGI_STAT_CODE = '" . $mystate . "' AND SHRTATC_SBGI_CODE = '" . $myschool . "' ORDER BY SHRTATC_SUBJ_TRNS, SHRTATC_TRNS_TITLE;";
+        $myoutputalldeptsql = "SELECT DISTINCT SHRTATC_SBGI_CODE, SZBTATC_SBGI_STAT_CODE, SHRTATC_SUBJ_TRNS, SHRTATC_TRNS_TITLE, SZBTATC_TRNS_CREDITS, SZBTATC_SUBJ_INST, SZBTATC_INST_TITLE, SHRTATC_INST_CREDITS_USED, SHRTATC_GROUP FROM " . $mytable . " WHERE SHRTATC_GROUP<>'' AND SZBTATC_SBGI_STAT_CODE = '" . $mystate . "' AND SHRTATC_SBGI_CODE = '" . $myschool . "' AND SHRTATC_SUBJ_TRNS LIKE '" . $mydeptcode . "%' ORDER BY SHRTATC_SUBJ_TRNS, SHRTATC_TRNS_TITLE;";
+    }
+
+    if (($mystateexist) && ($myschoolexist) && ($mycourseexist)) {
+        $content.="<table>";
+        $content.="  <thead>";
+        $content.="      <tr>";
+        if ($mymode == "groups") {
+            $content.="<th>&nbsp;</th>";
+        }
+        $content.="          <th colspan='6' style='text-align:center;'>";
+        if (($mycourse != "View All") && ($mycourse != "") && ($mydeptcode == "")) { $content.="Course Equivalent"; }
+        if ($mydeptcode != "") { $content.="All Transferrable Courses in Department " . $mydeptcode; }
+        if ($mycourse == "View All") { $content.="All Transferrable Courses"; }
+        $content.="          </th>";
+        $content.="      </tr>";
+        $content.="      <tr>";
+        if ($mymode == "groups") {
+            $content.="<th>&nbsp;</th>";
+        }
+        $content.="          <th colspan='3' style='text-align:center;'>Transferring Institution</th>";
+        $content.="          <th colspan='3' style='text-align:center;'>GMU Equivalent</th>";
+        $content.="      </tr>";
+        $content.="      <tr>";
+        if ($mymode == "groups") {
+            $content.="<th>Banner Group</th>";
+        }
+        $content.="          <th>Course Number</th>";
+        $content.="          <th>Course Name</th>";
+        $content.="          <th>Credits</th>";
+        $content.="          <th>Course Number</th>";
+        $content.="          <th>Course Name</th>";
+        $content.="          <th>Credits</th>";
+        $content.="      </tr>";
+        $content.="  </thead>";
+    }
+
+    //SINGLE COURSE
+    if (($mycourse != "View All") && (!empty($mycourse)) && (empty($mydeptcode))) {
+
+        //pull courses from db and loop
+        if ($courses = $wpdb->get_results($myoutputsql)) {
+
+            foreach($courses as $course){
+
+                //get department
+                $mydepartmentcode = substr($course->SHRTATC_SUBJ_TRNS,0,strpos($course->SHRTATC_SUBJ_TRNS," "));
+
+                //output data
+                $content.="<tr>";
+                if ($mymode == "groups") { $content.="<td>" . $course->SHRTATC_GROUP . "</td>"; }
+                $content.=" <td>" . $course->SHRTATC_SUBJ_TRNS . "</td><td>" . $course->SHRTATC_TRNS_TITLE . "</td><td>" . $course->SZBTATC_TRNS_CREDITS . "</td><td>" . $course->SZBTATC_SUBJ_INST . "</td><td>" . $course->SZBTATC_INST_TITLE . "</td><td style='text-align:center;'>" . $course->SHRTATC_INST_CREDITS_USED . "</td>";
+                $content.="</tr>";
+
+            }
+
+            //Display department link
+            if ($mydeptcode=="") {
+                $content.="<tfoot>";
+                $content.="    <tr>";
+                $content.="        <th colspan='6' style='text-align:center;'>";
+                $content.="<a href='?state=".$mystate."&school=".$myschool."&course=".$mycourse."&deptCode=".$mydepartmentcode."'>View All Transferrable Courses in This Department</a>";
+                $content.="        </th>";
+                $content.="    </tr>";
+                $content.="</tfoot>";
+            }
+
+        }
+
+    }
+
+    //DEPARTMENT
+    if ($mydeptcode != "") {
+
+        //pull courses from db and loop
+        if ($courses = $wpdb->get_results($myoutputalldeptsql)) {
+
+            foreach($courses as $course){
+                //output data
+
+                $content.="<tr>";
+                if ($mymode == "groups") { $content.="<td>" . $course->SHRTATC_GROUP . "</td>"; }
+                $content.=" <td>" . $course->SHRTATC_SUBJ_TRNS . "</td><td>" . $course->SHRTATC_TRNS_TITLE . "</td><td>" . $course->SZBTATC_TRNS_CREDITS . "</td><td>" . $course->SZBTATC_SUBJ_INST . "</td><td>" . $course->SZBTATC_INST_TITLE . "</td><td style='text-align:center;'>" . $course->SHRTATC_INST_CREDITS_USED . "</td>";
+                $content.="</tr>";
+
+            }
+        }
+
+    }
+
+    //VIEW ALL
+    if ($mycourse == "View All") {
+
+        //pull courses from db and loop
+        if ($courses = $wpdb->get_results($myoutputallsql)) {
+
+            foreach($courses as $course){
+                //output data
+
+                $content.="<tr>";
+                if ($mymode == "groups") { $content.="<td>" . $course->SHRTATC_GROUP . "</td>"; }
+                $content.="  <td>" . $course->SHRTATC_SUBJ_TRNS . "</td><td>" . $course->SHRTATC_TRNS_TITLE . "</td><td>" . $course->SZBTATC_TRNS_CREDITS . "</td><td>" . $course->SZBTATC_SUBJ_INST . "</td><td>" . $course->SZBTATC_INST_TITLE . "</td><td style='text-align:center;'>" . $course->SHRTATC_INST_CREDITS_USED . "</td>";
+                $content.="</tr>";
+
+            }
+        }
+
+    }
+
+    if (($mystateexist) && ($myschoolexist) && ($mycourseexist)) {
+        $content.="</table>";
+    }
 
     // Return value
     return $content;
